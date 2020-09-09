@@ -1,4 +1,4 @@
-package com.example.cursorestfulspringboott2.controller;
+package com.example.cursorestfulspringboott2.model;
 
 public class Cliente {
     public int id;

@@ -1,41 +1,73 @@
 package com.example.cursorestfulspringboott2.controller;
 
-import java.util.Arrays;
+import java.net.URI;
 import java.util.List;
-
-import javax.annotation.PostConstruct;
-
 import com.example.cursorestfulspringboott2.model.Cliente;
 import com.example.cursorestfulspringboott2.repository.ClienteRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 
 @RestController
+@RequestMapping("/clientes")
 public class ClienteController {
 
     @Autowired
     ClienteRepository repository;
 
-    @GetMapping("/clientes")
+    @GetMapping()
     public List<Cliente> getClientes() {
         return repository.getClientes();
     }
 
-    @GetMapping("/clientes/{id}")
-    public Cliente getCliente(@PathVariable int id) {
-        return repository.getClienteById(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<Cliente> getCliente(@PathVariable int id) {
+        Cliente cliente = repository.getClienteById(id);     
+        
+        if(cliente == null)
+            return ResponseEntity.notFound().build();
+        else
+            return ResponseEntity.ok(cliente);
     }
 
-    @PostMapping("/clientes")
-    public Cliente salvar(@RequestBody Cliente cliente) {
-        return repository.save(cliente);
+    @PostMapping()
+    public ResponseEntity<Cliente> salvar(@RequestBody Cliente cliente) {
+         cliente = repository.save(cliente);
+         URI uri = URI.create("http://localhost:8080/clientes/"+cliente.getId());
+         return ResponseEntity.created(uri).build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> remover(@PathVariable int id){
+        Cliente cliente = repository.getClienteById(id);
+        if(cliente == null){
+            return ResponseEntity.notFound().build();
+        }
+        else{
+            repository.delete(cliente);
+            return ResponseEntity.noContent().build();
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Cliente> atualizar(@RequestBody Cliente cliente, @PathVariable int id){ 
+        Cliente aux = repository.getClienteById(id);
+        if(aux != null){
+            cliente.setId(id);
+            cliente = repository.update(cliente);
+            return ResponseEntity.ok(cliente);
+        }
+        else{
+            return ResponseEntity.notFound().build();           
+        }
     }
 
 }

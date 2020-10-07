@@ -20,7 +20,4 @@ public class ClienteDTO {
     public void setEndereco(String endereco) {
         this.endereco = endereco;
     }
-
-    
-
 }

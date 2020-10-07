@@ -56,7 +56,7 @@ public class ClienteController {
                                            ) {
 
          Cliente cliente = servico.fromDTO(clienteDTO);
-                                            
+
          cliente = repository.save(cliente);
          
          UriComponents uriComponents = builder.path(request.getRequestURI()+"/"+cliente.getId()).build();
@@ -77,9 +77,10 @@ public class ClienteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Cliente> atualizar(@RequestBody Cliente cliente, @PathVariable int id){ 
+    public ResponseEntity<Cliente> atualizar(@RequestBody ClienteDTO clienteDTO, @PathVariable int id){ 
         Cliente aux = repository.getClienteById(id);
         if(aux != null){
+            Cliente cliente = servico.fromDTO(clienteDTO);
             cliente.setId(id);
             cliente = repository.update(cliente);
             return ResponseEntity.ok(cliente);

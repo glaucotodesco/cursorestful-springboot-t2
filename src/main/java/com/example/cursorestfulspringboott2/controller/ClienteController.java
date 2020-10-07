@@ -2,8 +2,14 @@ package com.example.cursorestfulspringboott2.controller;
 
 import java.net.URI;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.example.cursorestfulspringboott2.dto.ClienteDTO;
 import com.example.cursorestfulspringboott2.model.Cliente;
 import com.example.cursorestfulspringboott2.repository.ClienteRepository;
+import com.example.cursorestfulspringboott2.service.ClienteService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,6 +18,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -21,9 +29,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class ClienteController {
 
     @Autowired
-    ClienteRepository repository;
+    private ClienteRepository repository;
 
-    @GetMapping()
+    @Autowired
+    private ClienteService servico;
+
+    @GetMapping
     public List<Cliente> getClientes() {
         return repository.getClientes();
     }
@@ -38,11 +49,19 @@ public class ClienteController {
             return ResponseEntity.ok(cliente);
     }
 
-    @PostMapping()
-    public ResponseEntity<Cliente> salvar(@RequestBody Cliente cliente) {
+    @PostMapping
+    public ResponseEntity<Cliente> salvar(@RequestBody ClienteDTO clienteDTO,
+                                           HttpServletRequest request,
+                                           UriComponentsBuilder builder
+                                           ) {
+
+         Cliente cliente = servico.fromDTO(clienteDTO);
+                                            
          cliente = repository.save(cliente);
-         URI uri = URI.create("http://localhost:8080/clientes/"+cliente.getId());
-         return ResponseEntity.created(uri).build();
+         
+         UriComponents uriComponents = builder.path(request.getRequestURI()+"/"+cliente.getId()).build();
+
+         return ResponseEntity.created(uriComponents.toUri()).build();
     }
 
     @DeleteMapping("/{id}")

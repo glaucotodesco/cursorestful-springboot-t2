@@ -1,11 +1,13 @@
 package com.example.cursorestfulspringboott2.controller;
 
-
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import com.example.cursorestfulspringboott2.dto.ClienteDTO;
 import com.example.cursorestfulspringboott2.model.Cliente;
+import com.example.cursorestfulspringboott2.model.Pedido;
 import com.example.cursorestfulspringboott2.service.ClienteService;
+import com.example.cursorestfulspringboott2.service.PedidoService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,6 +28,11 @@ public class ClienteController {
 
     @Autowired
     private ClienteService servico;
+
+
+    @Autowired
+    private PedidoService pedidoService;
+
 
     @GetMapping
     public List<Cliente> getClientes() {
@@ -62,6 +69,20 @@ public class ClienteController {
         cliente.setId(id);
         cliente = servico.update(cliente);
         return ResponseEntity.ok(cliente);
+    }
+
+
+    @PostMapping("{id}/pedidos")
+    public ResponseEntity<Pedido> salvar(  @PathVariable int id,
+                                           @RequestBody Pedido pedido,
+                                           HttpServletRequest request,
+                                           UriComponentsBuilder builder
+                                           ) {
+
+         //Esse metodo pode gerar o 404 para o id do cliente!
+         pedidoService.save(pedido, id);                                    
+         UriComponents uriComponents = builder.path(request.getRequestURI()+"/"+pedido.getNumero()).build();
+         return ResponseEntity.created(uriComponents.toUri()).build();
     }
 
 }
